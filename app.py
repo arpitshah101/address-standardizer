@@ -89,6 +89,9 @@ def clean_addr(parsed_addr):
                         result[key] = tkns[0]
                 results.append((result, 0))
                 addr = dict(result)
+    except Exception as e:
+        pass
+    try:
         if 'AddressNumber' in addr.keys() and 'OccupancyIdentifier' not in addr.keys():
             tkns = addr['AddressNumber'].split(' ')
             if len(tkns) > 1:
@@ -100,6 +103,9 @@ def clean_addr(parsed_addr):
                         result[key] = value
                 results.append((result, 0))
                 addr = dict(result)
+    except Exception as e:
+        pass
+    try:
         if 'StreetName' in addr.keys():
             street_split = addr['StreetName'].split(' ')
             if len(street_split) > 1 and all_nums(street_split[0]):
@@ -118,6 +124,9 @@ def clean_addr(parsed_addr):
                         result[key] = value
                 results.append((result, 0))
                 addr = dict(result)
+    except Exception as e:
+        pass
+    try:
         if 'OccupancyIdentifier' in addr.keys():
             occ_split = addr['OccupancyIdentifier'].split(' ')
             result = collections.OrderedDict()
@@ -141,8 +150,19 @@ def clean_addr(parsed_addr):
             result['OccupancyIdentifier'] = occ_id
             addr = dict(result)
             results.append((result, 0))
-    except:
-        return results[-1]
+    except Exception as e:
+        pass
+    try:
+        if 'StreetNamePreType' in addr.keys() and 'StreetName' not in addr.keys():
+            result = collections.OrderedDict()
+            for key, value in addr.items():
+                result[key] = value
+            result['StreetName'] = result['StreetNamePreType']
+            del result['StreetNamePreType']
+            addr = dict(result)
+            results.append((result, 0))
+    except Exception as e:
+        pass
     return results[-1]
 
 
@@ -168,7 +188,7 @@ if __name__ == '__main__':
     addr_count = 0
 
     addr_util = AddressStandardizer()
-    for addr in parsed_addrs:
+    for addr in parsed_addrs[:5]:
         addr_count += 1
 
         addr = clean_addr(addr)
@@ -190,28 +210,19 @@ if __name__ == '__main__':
             usps_result = addr_util.find_usps_addr(street1, city, state, zip_code)
             if usps_result is None:
                 print('something went wrong')
-                # print_regular_addr(addr)
-                # print(addr_dict)
+                print_regular_addr(addr)
+                print(addr_dict)
                 total_issues += 1
                 print('Problem: %d' % addr_count)
+                print('\n')
                 continue
             else:
-                # print_formatted_address(usps_result, addr_dict)
+                print_formatted_address(usps_result, addr_dict)
                 total_issues += 1
                 without_subaddr += 1
                 print('Problem: %d' % addr_count)
-        # print_formatted_address(usps_result, addr_dict)
+        print_formatted_address(usps_result, addr_dict)
 
-        # try:
-        #     print_formatted_address(usps_result, addr_dict)
-        #     print('\n\n')
-        # except:
-        #     print('something went wrong with printing...')
-        #     # print(addr)
-        #     print_regular_addr(addr)
-        #     print('\n\n')
-        #     # print(usps_result)
-        #     break
     print("Total issues: %d" % total_issues)
     print("Without subaddress: %d" % without_subaddr)
 
