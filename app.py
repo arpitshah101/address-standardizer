@@ -124,8 +124,11 @@ def clean_addr(parsed_addr):
             if len(occ_split) > 1 and all_nums(occ_split[1]) and all_nums(occ_split[1]):
                 result['AddressNumber'] = occ_split[1]
                 result['OccupancyIdentifier'] = occ_split[0]
-            for key, value in addr.items():
-                if key != 'AddressNumber' and key != 'PlaceName':
+                for key, value in addr.items():
+                    if key != 'AddressNumber' and key != 'PlaceName':
+                        result[key] = value
+            else:
+                for key, value in addr.items():
                     result[key] = value
             if 'PlaceName' in addr.keys():
                 result['StreetName'] = addr['PlaceName']
@@ -210,6 +213,7 @@ if __name__ == '__main__':
         #     # print(usps_result)
         #     break
     print("Total issues: %d" % total_issues)
+    print("Without subaddress: %d" % without_subaddr)
 
     # print(generate_str1(parsed_addrs[150]))
     # print(parsed_addrs[150])
